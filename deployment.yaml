@@ -1,19 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: small-service-1
+  name: small-app-1
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: small-service-1
+      app: small-app-1
   template:
     metadata:
       labels:
-        app: small-service-1
+        app: small-app-1
     spec:
       containers:
-        - name: small-service-1-container
-          image: gcr.io/my-project-id/small-service-1:latest
+        - name: small-app-1-container
+          image: gcr.io/my-project-id/small-app-1:container_2_$BUILD_ID
           ports:
             - containerPort: 8000
+
+
+

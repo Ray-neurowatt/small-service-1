@@ -1,0 +1,42 @@
+steps:
+  # Step 1: Build the Docker image
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/small-service-1:latest'
+      - .
+
+  # Step 2: Push the image to Google Container Registry (GCR)
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - push
+      - 'gcr.io/$PROJECT_ID/small-service-1:latest'
+
+  # Step 3: Create or update Kubernetes secret
+  - name: gcr.io/cloud-builders/kubectl
+    entrypoint: sh
+    args:
+      - '-c'
+      - |
+        kubectl create secret generic small-service-1-env --from-env-file=.env --dry-run=client -o yaml | kubectl apply -f -
+
+  # Step 4: Apply the deployment
+  - name: gcr.io/cloud-builders/kubectl
+    env:
+      - CLOUDSDK_COMPUTE_ZONE=us-central1-a
+      - CLOUDSDK_CONTAINER_CLUSTER=hello-world-cluster
+    args:
+      - apply
+      - '-f'
+      - deployment.yaml
+
+  # Step 5: Apply the service
+  - name: gcr.io/cloud-builders/kubectl
+    env:
+      - CLOUDSDK_COMPUTE_ZONE=us-central1-a
+      - CLOUDSDK_CONTAINER_CLUSTER=hello-world-cluster
+    args:
+      - apply
+      - '-f'
+      - service.yaml
